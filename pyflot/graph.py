@@ -15,7 +15,8 @@ from itertools import chain
 import inspect
 import json
 import time
-from django.utils.safestring import mark_safe
+
+from bson import json_util
 
 
 __title__ = 'pyflot'
@@ -23,9 +24,6 @@ __version__ = '0.2.2'
 __author__ = 'Brian Luft'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2011 Brian Luft'
-
-def safe_json(obj):
-    return mark_safe(json.dumps(obj))
 
 
 def update(d, u):
@@ -88,7 +86,8 @@ class Flot(object):
         associated with this graph formatted as JSON, 
         suitable for passing to the ``$.plot`` method.
         """
-        return safe_json([self.prepare_series(s) for s in self._series])
+        return json.dumps([self.prepare_series(s) for s in self._series],
+                          default=json_util.default)
 
     @property
     def options_json(self):
@@ -97,7 +96,7 @@ class Flot(object):
         for this graph in a format suitable for passing to 
         the ``$.plot`` method as the options parameter.
         """
-        return safe_json(self._options)
+        return json.dumps(self._options, default=json_util.default)
 
     def __getattr__(self, value):
         """
